@@ -1,10 +1,15 @@
+#! Prometheus resources: drop this file to
+#! .tkg/providers/ytt/04_user_customizations.
+#!
+#! This file contains everything you need to deploy Prometheus as a cluster addon
+#! when you create a cluster.
+#! ---------------------------------------------------------------------
+
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 
-
 #@ def prometheusYaml():
-
 ---
 apiVersion: v1
 kind: Namespace

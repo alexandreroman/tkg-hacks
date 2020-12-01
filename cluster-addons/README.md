@@ -38,3 +38,11 @@ Waiting for addons installation...
 
 Workload cluster 'foo' created
 ```
+
+Prometheus has been deployed leveraging Cluster-API and `ClusterResourceSet`:
+
+```bash
+$ kubectl -n monitoring get pods
+NAME                                     READY   STATUS    RESTARTS   AGE
+prometheus-deployment-5944c8497d-zbv95   1/1     Running   0          9m
+```

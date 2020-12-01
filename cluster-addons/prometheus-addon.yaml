@@ -1,9 +1,17 @@
+#! Prometheus cluster addon: drop this file to 
+#! .tkg/providers/ytt/04_user_customizations.
+#!
+#! This file defines Cluster-API entities such as ClusterResourceSet
+#! in order to deploy custom resources.
+#! In this example, the ClusterResourceSet references a Secret, which
+#! contains all the Prometheus resources you need to deploy to clusters.
+#! ---------------------------------------------------------------------
+
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 
 #@ load("prometheus.lib.yaml", "prometheusYaml")
-
 ---
 apiVersion: addons.cluster.x-k8s.io/v1alpha3
 kind: ClusterResourceSet

@@ -1,5 +1,5 @@
-#! Custom cluster settings: store this file under
-#! .tkg/providers/infrastructure-vsphere/ytt/custom-cluster-settings.yaml.
+#! Custom cluster settings: drop this file to
+#! .tkg/providers/infrastructure-vsphere/ytt.
 #!
 #! This file overrides YAML definitions from
 #! .tkg/providers/infrastructure-vsphere/vX.Y.Z/ytt/base-template.yaml.
