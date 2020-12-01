@@ -1,0 +1,61 @@
+#! HTTP proxy: drop this file to
+#! .tkg/providers/ytt/04_user_customizations.
+#!
+#! Drop this file in your TKG configuration directory to enable HTTP
+#! proxy. You also need to set the HTTP proxy host and port in
+#! config_default.yaml like this:
+#!
+#!   HTTP_PROXY_HOST: "1.2.3.4"
+#!   HTTP_PROXY_PORT: "3128"
+#!
+#! This ytt overlay also excludes the cluster control plane from
+#! the HTTP proxy, along with the cluster / services CIDR.
+#! ---------------------------------------------------------------------
+
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+kind: KubeadmControlPlane
+spec:
+  kubeadmConfigSpec:
+    preKubeadmCommands:
+    #@overlay/append
+    - #@ 'echo [Service] > /etc/systemd/system/containerd.service.d/http-proxy.conf'
+    #@overlay/append
+    - #@ 'echo Environment="HTTP_PROXY=http://{}:{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values.HTTP_PROXY_PORT)
+    #@overlay/append
+    - #@ 'echo Environment="HTTPS_PROXY=http://{}:{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values.HTTP_PROXY_PORT)
+    #@overlay/append
+    - #@ 'echo Environment="NO_PROXY=localhost,.svc,{},{},{},{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values._VSPHERE_CONTROL_PLANE_ENDPOINT_IP,data.values.CLUSTER_CIDR,data.values.SERVICE_CIDR)
+    #@overlay/match missing_ok=True
+    postKubeadmCommands:
+    #@overlay/append
+    - systemctl daemon-reload
+    #@overlay/append
+    - systemctl restart containerd
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"})
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: KubeadmConfigTemplate
+spec:
+  template:
+    spec:
+      preKubeadmCommands:
+      #@overlay/append
+      - #@ 'echo [Service] > /etc/systemd/system/containerd.service.d/http-proxy.conf'
+      #@overlay/append
+      - #@ 'echo Environment="HTTP_PROXY=http://{}:{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values.HTTP_PROXY_PORT)
+      #@overlay/append
+      - #@ 'echo Environment="HTTPS_PROXY=http://{}:{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values.HTTP_PROXY_PORT)
+      #@overlay/append
+      - #@ 'echo Environment="NO_PROXY=localhost,.svc,{},{},{},{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values._VSPHERE_CONTROL_PLANE_ENDPOINT_IP,data.values.CLUSTER_CIDR,data.values.SERVICE_CIDR)
+      #@overlay/match missing_ok=True
+      postKubeadmCommands:
+      #@overlay/append
+      - systemctl daemon-reload
+      #@overlay/append
+      - systemctl restart containerd
