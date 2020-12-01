@@ -1,0 +1,33 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+#@ load("prometheus.lib.yaml", "prometheusYaml")
+
+---
+apiVersion: addons.cluster.x-k8s.io/v1alpha3
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-addon-prometheus".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "prometheus"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+  - name: #@ "{}-prometheus".format(data.values.CLUSTER_NAME)
+    kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-prometheus".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "prometheus"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(overlay.apply(prometheusYaml()))
