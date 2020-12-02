@@ -45,6 +45,23 @@ fi
 imagesFile=$outputDir/tkg-images.txt
 rm -f "$imagesFile"
 
+declare -a additionalImages=(
+    "metallb/speaker:v0.9.5"
+    "metallb/controller:v0.9.5"
+)
+
+for actualImage in "${additionalImages[@]}"; do
+    customImage=$repo/$actualImage
+
+    docker pull $actualImage && \
+    docker tag  $actualImage $customImage
+    imageRawId=$(docker inspect --format='{{index .Id}}' $customImage)
+    imageId=${imageRawId:7}
+    docker save -o "$outputDir/$imageId.tar" $customImage
+
+    echo $customImage >> $imagesFile
+done
+
 for TKG_BOM_FILE in "$BOM_DIR"/*.yaml; do
     # Get actual image repository from BoM file
     actualImageRepository=$(yq r "$TKG_BOM_FILE" imageConfig.imageRepository | tr -d '"')
