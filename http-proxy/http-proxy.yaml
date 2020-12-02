@@ -29,7 +29,7 @@ spec:
     #@overlay/append
     - #@ 'echo Environment="HTTPS_PROXY=http://{}:{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values.HTTP_PROXY_PORT)
     #@overlay/append
-    - #@ 'echo Environment="NO_PROXY=localhost,.svc,{},{},{},{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values._VSPHERE_CONTROL_PLANE_ENDPOINT_IP,data.values.CLUSTER_CIDR,data.values.SERVICE_CIDR)
+    - #@ 'echo Environment="NO_PROXY=localhost,127.0.0.1,.svc,.cluster.local,{},{},{},{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values._VSPHERE_CONTROL_PLANE_ENDPOINT_IP,data.values.CLUSTER_CIDR,data.values.SERVICE_CIDR)
     #@overlay/match missing_ok=True
     postKubeadmCommands:
     #@overlay/append
@@ -52,7 +52,7 @@ spec:
       #@overlay/append
       - #@ 'echo Environment="HTTPS_PROXY=http://{}:{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values.HTTP_PROXY_PORT)
       #@overlay/append
-      - #@ 'echo Environment="NO_PROXY=localhost,.svc,{},{},{},{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values._VSPHERE_CONTROL_PLANE_ENDPOINT_IP,data.values.CLUSTER_CIDR,data.values.SERVICE_CIDR)
+      - #@ 'echo Environment="NO_PROXY=localhost,127.0.0.1,.svc,.cluster.local,{},{},{},{}" >> /etc/systemd/system/containerd.service.d/http-proxy.conf'.format(data.values.HTTP_PROXY_HOST,data.values._VSPHERE_CONTROL_PLANE_ENDPOINT_IP,data.values.CLUSTER_CIDR,data.values.SERVICE_CIDR)
       #@overlay/match missing_ok=True
       postKubeadmCommands:
       #@overlay/append
