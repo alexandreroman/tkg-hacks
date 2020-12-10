@@ -80,7 +80,7 @@ for TKG_BOM_FILE in "$BOM_DIR"/*.yaml; do
         docker pull $actualImage && \
         docker tag  $actualImage $customImage
 
-        imageRawId=$(docker inspect --format='{{index .Id}}' $customImage)
+        imageRawId=$(docker inspect --format='{{.ID}}' $customImage)
         imageId=${imageRawId:7}
         docker save -o "$outputDir/$imageId.tar" $customImage
 
