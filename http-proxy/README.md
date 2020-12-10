@@ -17,7 +17,7 @@ All `ytt` overlays in this directory will be applied to all clusters.
 
 Copy the file `http-proxy.yaml` to this directory.
 
-Then, edit file `$HOME/.tkg/config.yaml`, and add these entries:
+Then, edit file `$HOME/.tkg/config_default.yaml`, and add these entries:
 
 ```yaml
 #! HTTP proxy settings

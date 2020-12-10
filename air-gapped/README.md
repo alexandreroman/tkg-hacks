@@ -55,8 +55,17 @@ $ ./tkg-upload-images.sh
 You're done!
 
 Now, you can start installing TKG by following the documentation.
-Don't forget to set `TKG_CUSTOM_IMAGE_REPOSITORY` in `$HOME/.tkg/config.yaml`
+Don't forget to set `TKG_CUSTOM_IMAGE_REPOSITORY` in `$HOME/.tkg/config_default.yaml`
 using the same value you've just used.
 
 In case your private registry is using unsigned certificates, you also need to set
 `TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY` to `true`.
+
+Your TKG configuration file should then look like this:
+
+```yaml
+#! Custom image repository settings
+#! ---------------------------------------------------------------------
+TKG_CUSTOM_IMAGE_REPOSITORY: "harbor.tanzu.local"
+TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: "true"
+```
