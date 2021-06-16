@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Copyright 2020 VMware, Inc. or its affiliates.
+# Original work Copyright 2020 The TKG Contributors.
+# Modified work Copyright 2021 VMware, Inc. or its affiliates.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-usage() { echo "Usage: $0 -i <input dir>" 1>&2; exit 1; }
+set -euo pipefail
+
+INSTALL_INSTRUCTIONS='See https://github.com/mikefarah/yq#install for installation instructions'
+
+usage() { echo "Usage: $0 -r <repository> -i <input dir>" 1>&2; exit 1; }
 
 inputDir=$PWD
-while getopts "i:" opt; do
+repo=""
+while getopts "r:i:" opt; do
     case "${opt}" in
+        r)
+            repo=${OPTARG}
+            ;;
         i)
             inputDir=${OPTARG}
             ;;
@@ -28,18 +37,31 @@ while getopts "i:" opt; do
 done
 shift $((OPTIND-1))
 
-imagesFile=$inputDir/tkg-images.txt
-if [ ! -f "$imagesFile" ]; then
-    echo "Missing TKG images manifest: $imagesFile"
+if [ -z "${repo}" ]; then
+    usage
+fi
+
+if ! [ -x "$(command -v imgpkg)" ]; then
+  echo 'Error: imgpkg is not installed.' >&2
+  exit 3
+fi
+
+if ! [ -x "$(command -v yq)" ]; then
+  echo 'Error: yq is not installed.' >&2
+  echo "${INSTALL_INSTRUCTIONS}" >&2
+  exit 3
+fi
+
+manifestFile=$inputDir/manifest.yml
+if [ ! -f "$manifestFile" ]; then
+    echo "Missing TKG images manifest: $manifestFile" >&2
     exit 1
 fi
 
-for imageFile in $inputDir/*.tar; do
-    docker load -i "$imageFile" || exit 1
-done
-
-while IFS= read -r line
-do
-    customImage="$line"
-    docker push $customImage || exit 1
-done < "$imagesFile"
+yq e '.. | select(has("images"))|.images[] | .file + "=" + .image' "$manifestFile" |
+    while read -r entry; do
+      tar=${entry%=*}
+      image=${entry##*=}
+      echo "Uploading image ${image}"
+      imgpkg copy --tar "${inputDir}/${tar}" --to-repo "${repo}/${image}"
+    done
