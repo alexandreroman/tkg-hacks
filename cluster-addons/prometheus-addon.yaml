@@ -1,5 +1,5 @@
-#! Prometheus cluster addon: drop this file to 
-#! .tkg/providers/ytt/04_user_customizations.
+#! Prometheus cluster addon: drop this file in
+#! .tanzu/tkg/providers/ytt/04_user_customizations.
 #!
 #! This file defines Cluster-API entities such as ClusterResourceSet
 #! in order to deploy custom resources.
