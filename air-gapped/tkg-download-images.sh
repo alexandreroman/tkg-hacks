@@ -86,13 +86,13 @@ for TKG_BOM_FILE in "$BOM_DIR"/tkg-bom-*.yaml; do
       tarImage="$(echo $actualImage | md5sum | awk '{ print $1 }').tar"
       if ! [ -f "${outputDir}/${tarImage}" ]; then
         imgpkg copy --include-non-distributable-layers -i "${actualImage}" --to-tar "${outputDir}/${tarImage}"
-        cat >> "${manifestFile}" << EOF
+      fi
+      cat >> "${manifestFile}" << EOF
 - repo: ${actualImageRepository}
   image: ${image%:*}
   tag: ${image##*:}
   file: ${tarImage}
 EOF
-      fi
     done
   echo "Finished processing BOM file ${TKG_BOM_FILE}"
 done
@@ -103,13 +103,13 @@ for imageTag in ${kubernetesVersions}; do
     tarImage="$(echo ${actualImageRepository}/tkr-bom:${imageTag} | md5sum | awk '{ print $1 }').tar"
     if ! [ -f "${outputDir}/${tarImage}" ]; then
       imgpkg copy --include-non-distributable-layers -i "${actualImageRepository}/tkr-bom:${imageTag}" --to-tar "${outputDir}/${tarImage}"
-      cat >> "${manifestFile}" << EOF
+    fi
+    cat >> "${manifestFile}" << EOF
 - repo: ${actualImageRepository}
   image: tkr-bom
   tag: ${imageTag}
   file: ${tarImage}
 EOF
-    fi
 
     imgpkg pull --image ${actualImageRepository}/tkr-bom:${imageTag} --output "tmp" > /dev/null 2>&1
     yq e '.. | select(has("images"))|.images[] | .imagePath + ":" + .tag ' "$(ls tmp/*.yaml)" |
@@ -118,13 +118,13 @@ EOF
       tarImage="$(echo $actualImage | md5sum | awk '{ print $1 }').tar"
       if ! [ -f "${outputDir}/${tarImage}" ]; then
         imgpkg copy --include-non-distributable-layers -i "${actualImage}" --to-tar "${outputDir}/${tarImage}"
-        cat >> "${manifestFile}" << EOF
+      fi
+      cat >> "${manifestFile}" << EOF
 - repo: ${actualImageRepository}
   image: ${image%:*}
   tag: ${imageTag}
   file: ${tarImage}
 EOF
-      fi
     done
     rm -rf tmp
   fi
@@ -139,13 +139,13 @@ for imageTag in ${list}; do
     tarImage="$(echo $actualImage | md5sum | awk '{ print $1 }').tar"
     if ! [ -f "${outputDir}/${tarImage}" ]; then
       imgpkg copy --include-non-distributable-layers -i "${actualImage}" --to-tar "${outputDir}/${tarImage}"
-      cat >> "${manifestFile}" << EOF
+    fi
+    cat >> "${manifestFile}" << EOF
 - repo: ${actualImageRepository}
   image: tkr-compatibility
   tag: ${imageTag}
   file: ${tarImage}
 EOF
-    fi
   fi
 done
 
@@ -154,11 +154,11 @@ for image in ${additionalImages}; do
   tarImage="$(echo $image | md5sum | awk '{ print $1 }').tar"
   if ! [ -f "${outputDir}/${tarImage}" ]; then
     imgpkg copy --include-non-distributable-layers -i "${image}" --to-tar "${outputDir}/${tarImage}"
-    cat >> "${manifestFile}" << EOF
+  fi
+  cat >> "${manifestFile}" << EOF
 - repo: index.docker.io
   image: ${image%:*}
   tag: ${image##*:}
   file: ${tarImage}
 EOF
-  fi
 done
