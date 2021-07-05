@@ -20,7 +20,7 @@ by including the Prometheus resources, taking care of indenting YAML objects.
 
 ## Deploying a cluster addon
 
-Create directory `$HOME/.tkg/providers/ytt/04_user_customizations`.
+Create directory `$HOME/tanzu/.tkg/providers/ytt/04_user_customizations`.
 All `ytt` overlays in this directory will be applied to all clusters.
 
 Copy files `prometheus-addon.yaml` and `prometheus.lib.yaml` to this directory.
@@ -28,7 +28,7 @@ Copy files `prometheus-addon.yaml` and `prometheus.lib.yaml` to this directory.
 As you create your next cluster, this cluster addon will automatically be deployed:
 
 ```bash
-$ tkg create cluster foo -w 1 -p dev --vsphere-controlplane-endpoint-ip 10.213.167.60
+$ tanzu cluster create foo -f foo-cluster-config.yaml
 Logs of the command execution can also be found at: /tmp/tkg-20201130T203214643053607.log
 Validating configuration...
 Creating workload cluster 'foo'...
