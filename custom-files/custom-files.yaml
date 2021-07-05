@@ -1,0 +1,76 @@
+#! Add files to TKG nodes: drop this file in
+#! .tanzu/tkg/providers/ytt/04_user_customizations.
+#!
+#! This file defines overlays for Cluster-API entities,
+#! which can be used to create new files in every TKG nodes.
+#! ---------------------------------------------------------------------
+
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+spec:
+  kubeadmConfigSpec:
+    #@overlay/match missing_ok=True
+    files:
+      #@overlay/append
+      - path: /etc/hello.txt
+        owner: "root:root"
+        permissions: "0644"
+        content: #@ data.read("hello.txt")
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      files:
+      #@overlay/append
+      - path: /etc/hello.txt
+        owner: "root:root"
+        permissions: "0644"
+        content: |
+          Hello world! (inline content)
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+spec:
+  kubeadmConfigSpec:
+    #@overlay/match missing_ok=True
+    files:
+      #@overlay/append
+      - path: /etc/secret.txt
+        owner: "root:root"
+        permissions: "0600"
+        contentFrom:
+          secret:
+            key: secret.txt
+            name: #@ "{}-shared-secret".format(data.values.CLUSTER_NAME)
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      files:
+      #@overlay/append
+      - path: /etc/secret.txt
+        owner: "root:root"
+        permissions: "0600"
+        contentFrom:
+          secret:
+            key: secret.txt
+            name: #@ "{}-shared-secret".format(data.values.CLUSTER_NAME)
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-shared-secret".format(data.values.CLUSTER_NAME)
+type: Opaque
+stringData:
+  secret.txt: |
+    This is a secret file loaded from a Kubernetes Secret object.
